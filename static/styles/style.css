@@ -1,0 +1,24 @@
+body * {
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    margin: 20px;
+}
+
+.tree-node {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.tree-node.collapsed:before {
+    content: '▸';
+}
+
+.tree-node.expanded:before {
+    content: '▾';
+}
+
+pre {
+    white-space: pre-wrap;
+}

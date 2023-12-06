@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Parser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <header>
+
+    </header>
+    <div class="main-wrapper">
+        <form action="{{ url_for('get_tree') }}" method="post">
+            <input type="text" name="link" placeholder="Type url of website"/>
+            <input type="submit" value="Go!">
+        </form>
+        <input type="text" id="search_term" placeholder="Search term"/>
+        <button id="search_btn">Search!</button>
+        <pre class="tree-view">
+            {{html_tree|safe}}
+        </pre>
+        <p>Choose element that will be parsed:</p>
+        <div id="for-parsing">
+        </div>
+        <form action="{{ url_for('parse') }}" method="post">
+            <input type="submit" value="Go!">
+        </form>
+    </div>
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        function searchAndHighlight(node, searchTerm) {
+            node.style.color = "black";
+            $(node).children("div").hide();
+            $(node).removeClass("expanded").addClass("collapsed");
+
+            if ($(node).hasClass("tree-node") && node.innerHTML.toLowerCase().includes(searchTerm.toLowerCase())) {
+                node.style.color = "red"; 
+                $(node).children("div").show();
+                $(node).removeClass("collapsed").addClass("expanded");
+                $(node).children("div").each(function () {
+                    searchAndHighlight(this, searchTerm);
+                });
+            }
+        }
+
+        $(".tree-node").children("div").hide();
+        $(".tree-node").addClass("collapsed");
+
+        $(".tree-node").click(function (event) {
+            event.stopPropagation();
+            $(this).children("div").toggle();
+            $(this).toggleClass("collapsed expanded");
+        });
+
+        $("#search_btn").click(function () {
+            var searchTerm = $("#search_term").val();
+            $(".tree-node").each(function () {
+                searchAndHighlight(this, searchTerm);
+            });
+        });
+
+        $(".plus-btn").click(function (event) {
+            event.stopPropagation();
+            var divInfo = $(this).parent("div").contents().filter(function () {
+                return this.nodeType === 3;
+            }).text().trim();
+            console.log(divInfo);
+
+            $("#for-parsing").html("<div class='parsing-element'>" + divInfo + "</div>");
+        });
+    });
+</script>
