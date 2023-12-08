@@ -47,6 +47,7 @@
     {% if data_for_parse %}
         <p>{{ data_for_parse }}</p>
     {% endif %}
+    <a href="{{ url_for('download_file') }}" download>Download Data</a>
 </body>
 </html>
 <script>

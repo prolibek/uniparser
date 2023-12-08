@@ -108,5 +108,10 @@ def parse_all():
 
     return send_file('data.csv', as_attachment=True)
 
+@app.route('/download')
+def download_file():
+    path = "data.csv"
+    return send_file(path, as_attachment=True)
+
 if __name__ == '__main__':
     app.run(debug=True)
