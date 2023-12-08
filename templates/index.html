@@ -40,7 +40,7 @@
         <tr>
             <th>El type</th>
             <th>El classname</th>
-            <th>El attr</th>
+            <th>Delete button</th>
         </tr>
     </table>
     <input type="submit" value="PARSE!!!!" id="final-parse">
@@ -51,6 +51,11 @@
 </body>
 </html>
 <script>
+    function deleteRow(btn) {
+        var row = btn.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+    }
+
     $(document).ready(function () {
         function searchAndHighlight(node, searchTerm) {
             node.style.color = "black";
@@ -105,7 +110,7 @@
             let div_el = div_split[0];
             let div_classname = div_split[1];
 
-            $("table").append("<tr><td>" + div_el + "</td>" + "<td>" + div_classname + "</td>" + "</tr>");
+            $("table").append("<tr><td>" + div_el + "</td>" + "<td>" + div_classname + "</td><td><button onclick='deleteRow(this)'>Delete</button></td></tr>");
         });
 
         $("#final-parse").click(function (event) {
