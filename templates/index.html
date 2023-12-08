@@ -18,16 +18,34 @@
         </form>
         <input type="text" id="search_term" placeholder="Search term"/>
         <button id="search_btn">Search!</button>
+        {% if html_tree %}
         <pre class="tree-view">
             {{html_tree|safe}}
         </pre>
+        {% endif %}
+        {% if html_part_tree %}
+        <pre class="tree-view">
+            {{html_part_tree|safe}}
+        </pre>
+        {% endif %}
         <p>Choose element that will be parsed:</p>
         <div id="for-parsing">
         </div>
-        <form action="{{ url_for('parse') }}" method="post">
-            <input type="submit" value="Go!">
+        <form action="{{ url_for('parse_particular') }}" method="post">
+            <input type="hidden" name="parsed_element" id="parsed_element" value="">
+            <input type="submit" value="Go!" id="submit-ppe">
         </form>
     </div>
+    <table>
+        <tr>
+            <th>El type</th>
+            <th>El classname</th>
+            <th>El attr</th>
+        </tr>
+    </table>
+    <form action="{{ url_for('parse_all') }}">
+        <input type="submit" value="PAAAAAARSE!!!!">
+    </form>
 </body>
 </html>
 <script>
@@ -65,12 +83,27 @@
 
         $(".plus-btn").click(function (event) {
             event.stopPropagation();
-            var divInfo = $(this).parent("div").contents().filter(function () {
+            let divInfo = $(this).parent("div").contents().filter(function () {
                 return this.nodeType === 3;
             }).text().trim();
             console.log(divInfo);
 
+            $("#parsed_element").val(divInfo);
+
             $("#for-parsing").html("<div class='parsing-element'>" + divInfo + "</div>");
+        });
+
+        $(".plus-btn-part").click(function (event) {
+            event.stopPropagation();
+            let divInfo = $(this).parent("div").contents().filter(function () {
+                return this.nodeType === 3;
+            }).text().trim();
+
+            let div_split = divInfo.split('. ')
+            let div_el = div_split[0]
+            let div_classname = div_split[1]
+
+            $("table").append("<tr><td>" + div_el + "</td>" + "<td>" + div_classname + "</td>" + "</tr>");
         });
     });
 </script>
