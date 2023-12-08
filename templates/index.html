@@ -36,16 +36,17 @@
             <input type="submit" value="Go!" id="submit-ppe">
         </form>
     </div>
-    <table>
+    <table id="parse-table">
         <tr>
             <th>El type</th>
             <th>El classname</th>
             <th>El attr</th>
         </tr>
     </table>
-    <form action="{{ url_for('parse_all') }}">
-        <input type="submit" value="PAAAAAARSE!!!!">
-    </form>
+    <input type="submit" value="PARSE!!!!" id="final-parse">
+    {% if data_for_parse %}
+        <p>{{ data_for_parse }}</p>
+    {% endif %}
 </body>
 </html>
 <script>
@@ -99,11 +100,37 @@
                 return this.nodeType === 3;
             }).text().trim();
 
-            let div_split = divInfo.split('. ')
-            let div_el = div_split[0]
-            let div_classname = div_split[1]
+            let div_split = divInfo.split('. ');
+            let div_el = div_split[0];
+            let div_classname = div_split[1];
 
             $("table").append("<tr><td>" + div_el + "</td>" + "<td>" + div_classname + "</td>" + "</tr>");
         });
+
+        $("#final-parse").click(function (event) {
+            event.stopPropagation();
+            
+            let data = [];
+
+            $("#parse-table tbody tr").each(function() {
+                var $cells = $(this).children();
+
+                data.push({
+                    el_type: $cells.eq(0).text(),
+                    el_classname: $cells.eq(1).text()
+                })
+            });
+
+            data.shift();
+
+            console.log(JSON.stringify(data))
+
+            $.ajax({
+                type: "POST",
+                url: "/parse_all",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+            })
+        })
     });
 </script>
