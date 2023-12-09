@@ -6,6 +6,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
+link = None
 soup = None
 html_tree = None
 part_parse_element = None
@@ -49,7 +50,7 @@ def index():
 
 @app.route('/get_tree', methods=['POST'])
 def get_tree():
-    global soup, html_tree
+    global soup, html_tree, link
     
     link = request.form.get("link")
 
@@ -83,25 +84,50 @@ def parse_particular():
 
 @app.route('/parse_all', methods=['POST'])
 def parse_all():
-    global data_for_parse, parse_el_type, parse_class
+    global data_for_parse, parse_el_type, parse_class, soup
     data_for_parse = request.json
 
-    data_for_parse = ast.literal_eval(str(data_for_parse))
+    ppar = ""
+    start = None
+    end = None
+
+    data = ast.literal_eval(str(data_for_parse))
+    table_data = ast.literal_eval(str(data["data"]))
+    params_data = ast.literal_eval(str(data["params"]))
+
+    print(table_data)
 
     print(data_for_parse)
 
-    all_el = soup.find_all(parse_el_type, class_=parse_class)
-
     df = []
 
-    for div in all_el:
-        cur = []
-        for el in data_for_parse:
-            classname = ast.literal_eval(el["el_classname"])[0]
-            cur.append(div.find(el["el_type"], classname).text.strip())
-        df.append(cur)
+    if params_data["start"] != "" and params_data["end"] != "" and params_data["ppar"] != "":
+        start = int(params_data["start"])
+        end = int(params_data["end"])
+        for i in range(start, end-1):
+            html_text = requests.get(f'{link}?{params_data["ppar"]}={i}').content
+            cur_soup = BeautifulSoup(html_text, 'html.parser')
+            cur_soup = cur_soup.find('body')
+            for s in cur_soup.select('script'):
+                s.extract()
 
-    print(df)
+            all_el = soup.find_all(parse_el_type, class_=parse_class)
+        
+            for div in all_el:
+                cur = []
+                for el in table_data:
+                    classname = ast.literal_eval(el["el_classname"])[0]
+                    cur.append(div.find(el["el_type"], classname).text.strip())
+                df.append(cur)
+    else:
+        all_el = soup.find_all(parse_el_type, class_=parse_class)
+
+        for div in all_el:
+            cur = []
+            for el in table_data:
+                classname = ast.literal_eval(el["el_classname"])[0]
+                cur.append(div.find(el["el_type"], classname).text.strip())
+            df.append(cur)
 
     df = pd.DataFrame(df)
     df.to_csv('data.csv', index=False)
